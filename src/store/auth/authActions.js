@@ -53,18 +53,15 @@ export function* processLogin(data) {
 
   try {
     
-    console.log(data, "/////////////////////")
-    console.log(data.email, "/////////////////////")
-    console.log(data.password, "/////////////////////")
+    // console.log(data, "/////////////////////")
+    // console.log(data.email, "/////////////////////")
+    // console.log(data.password, "/////////////////////")
 
     // const response = yield call(api('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', authData));
 
     // const response = yield call(axios.post, 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', { authData });
 
-    const response = yield call(axios.post, 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', { 
-      email: 'test@test.com',
-      password: '12345678',
-      returnSecureToken: true }
+    const response = yield call(axios.post, 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', { email: data.email, password: data.password, returnSecureToken: true }
     );
 
     yield console.log(response)

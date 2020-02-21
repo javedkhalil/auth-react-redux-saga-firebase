@@ -100,7 +100,7 @@ const mapStateToProps = state => ({
 
 
 const mapDispatchToProps = dispatch => ({
-  __login: (email, password) => dispatch({type: types.SIGNIN, data: { email, password } }),
+  __login: (email, password) => dispatch({type: types.SIGNIN, email: email, password: password  }),
   __signup: (email, password) => dispatch(processSignUp(email, password)),
   __msgError: (msg) => dispatch({ type: types.ERROR, payload: msg }),
   __msgSuccess: (msg) => dispatch({ type: types.SUCCESS, payload: msg })
