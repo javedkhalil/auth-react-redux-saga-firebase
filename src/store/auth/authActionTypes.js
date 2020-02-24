@@ -13,4 +13,8 @@ export const RELOGIN_PROCESS = 'RELOGIN_PROCESS';
 export const ERROR = 'ERROR';
 export const SUCCESS = 'SUCCESS';
 
+export const CLEAR_MESSAGES = 'CLEAR_MESSAGES';
+export const FIRE_CLEAR_MESSAGES = 'FIRE_CLEAR_MESSAGES';
+
+export const LOADING = 'LOADING';
 export const LOADED = 'LOADED';

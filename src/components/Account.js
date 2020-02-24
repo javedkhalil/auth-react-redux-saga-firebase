@@ -1,32 +1,32 @@
 import React, { useState } from 'react';
 import { connect } from "react-redux"
-import { processLogin, processSignUp } from "../store/auth/authActions";
 import { Redirect } from 'react-router-dom';
 import * as types from '../store/auth/authActionTypes';
 
-function Account({ isAuth, __login, __signup, msgSuccess, msgError, __msgError, __msgSuccess, loader }) {
+function Account({ isAuth, __login, __signup, msgSuccess, msgError, __clearMessages }) {
   const [ form, setForm ] = useState('login');
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
-
-  const authData = {
-    email: email,
-    password: password,
-    returnSecureToken: true
-  }
+  const [ validationError, setValidationError ] = useState('');
 
   // switch form
-  const changeForm = (type) => { 
+  const changeForm = (type) => {
     if(type === 'login') {
       setForm('login');
       setEmail('');
       setPassword('');
+      __clearMessages();
+      setValidationError('');
     } else if (type === 'signup') {
       setForm('signup');
       setEmail('');
       setPassword('');
+      __clearMessages();
+      setValidationError('');
     } else {
       setForm('login');
+      __clearMessages();
+      setValidationError('');
     }
   }
   
@@ -43,6 +43,8 @@ function Account({ isAuth, __login, __signup, msgSuccess, msgError, __msgError, 
   // handle submit
   const handleSubmit = (e) => {
     e.preventDefault();
+    setValidationError('');
+    __clearMessages();
     if(email && password && email.length > 6 && password.length > 6) {
       if(form === 'login') {
         // handle login request
@@ -55,16 +57,16 @@ function Account({ isAuth, __login, __signup, msgSuccess, msgError, __msgError, 
         __signup(email, password);
       }
     } else {
-      __msgError('Use valid Email address and min 6 characters are required for each field');
+      setValidationError('Use valid Email address and min 6 characters are required for each field');
     }
   }
   return (
     <div className="page-wrap">
       { isAuth ? <Redirect to="/" /> : null }
       <h4>Login or Create Account</h4>
-        { loader ? <p className="loading dot-falling">loading...</p> : null }
         <form onSubmit={ handleSubmit }>
           <div className="account">
+            { validationError ? <div className="error">{ validationError }</div> : null }
             { msgError ? <div className="error">{ msgError }</div> : null }
             { msgSuccess ? <div className="success">{ msgSuccess }</div> : null }
           { form === 'login' ? <h4>Login</h4> : <h4>Create Account</h4> }
@@ -91,19 +93,14 @@ function Account({ isAuth, __login, __signup, msgSuccess, msgError, __msgError, 
 }
 
 const mapStateToProps = state => ({
-  // isAuth: state.getAuth.isAuthenticated,
-  loader: state.getAuth.loading,
   msgSuccess: state.getAuth.msgSuccess,
   msgError: state.getAuth.msgError
 })
 
-
-
 const mapDispatchToProps = dispatch => ({
   __login: (email, password) => dispatch({type: types.SIGNIN, email: email, password: password  }),
-  __signup: (email, password) => dispatch(processSignUp(email, password)),
-  __msgError: (msg) => dispatch({ type: types.ERROR, payload: msg }),
-  __msgSuccess: (msg) => dispatch({ type: types.SUCCESS, payload: msg })
+  __signup: (email, password) => dispatch({type: types.SIGNUP, email: email, password: password  }),
+  __clearMessages: () => dispatch({ type: types.CLEAR_MESSAGES })
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Account);

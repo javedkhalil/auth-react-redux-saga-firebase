@@ -2,78 +2,63 @@ import axios from 'axios';
 import * as types from "./authActionTypes"
 import { call, put } from 'redux-saga/effects';
 
-export const processSignUp = (email, password) => {
-  return function(dispatch) {
-
-    const authData = {
-      email: email,
-      password: password,
-      returnSecureToken: true
+export function* processSignUp(data) {
+  yield put({ type: types.LOADING })
+  try {
+    yield call(axios.post, 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', { email: data.email, password: data.password, returnSecureToken: true }
+    );
+    // const response = yield call(axios.post, 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', { email: data.email, password: data.password, returnSecureToken: true }
+    // );    
+    // console.log(response.data);
+    // signup success
+    yield put({
+      type: types.SIGNUP_PROCESS,
+      payload: {
+        msgSuccess: 'Account created successfully... Please login',
+        msgError: ''
+      }
+    })
+    // fire loaded
+  } catch(error) {
+      // Signup failure
+      console.log("Signup Failed", error); //////// console //////
+      yield put({
+        type: types.ERROR,
+        payload: {
+          msgSuccess: '',
+          msgError: 'Signup failed. Please try again!'
+        }
+      })
     }
-
-    axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', authData)
-      .then(response => {
-
-        // console.log(response);
-        // console.log(response.data);
-
-        // signup success
-        dispatch({
-          type: types.SIGNUP,
-          payload: {
-            msgSuccess: 'Account created successfully... Please login',
-            msgError: ''
-          }
-        })
-        dispatch({ type: types.LOADED })
-
-      })
-      .catch(error => {
-        // signup failure
-        console.log("Signup Failed", error); //////// console //////
-        // dispatch signup failed
-        dispatch({
-          type: types.ERROR,
-          payload: 'Signup failed'
-        })
-      })
-  }
+  yield put({ type: types.LOADED })
 }
 
 
 
-// export const api = (url, authData) => axios.post(url, authData).then(response => response.json());
-
 export function* processLogin(data) {
-  const authData = {
-    email: data.email,
-    password: data.password,
-    returnSecureToken: true
-  }
-
+  yield put({ type: types.LOADING })
+  // this 'authData' is not acceptable below in call for some reason //////
+  // const authData = {
+  //   email: data.email,
+  //   password: data.password,
+  //   returnSecureToken: true
+  // }
   try {
-    
+    // that (data) above has got two parameters in it /// Daemmm !!!
     // console.log(data, "/////////////////////")
     // console.log(data.email, "/////////////////////")
     // console.log(data.password, "/////////////////////")
-
-    // const response = yield call(api('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', authData));
-
-    // const response = yield call(axios.post, 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', { authData });
-
     const response = yield call(axios.post, 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', { email: data.email, password: data.password, returnSecureToken: true }
     );
-
-    yield console.log(response)
-
+    // console.log(response)
     // add expiry seconds in current date time and store that too
     let expirationDateTime = new Date(new Date().getTime() + response.data.expiresIn * 1000);
-
+    // fire another action
     yield put({
       type: types.SIGNIN_PROCESS,
       payload: {
         msgError: '',
-        msgSuccess: 'Signin Successful',
+        msgSuccess: 'Signin successful...',
         isAuthenticated: true,
         token: response.data.idToken,
         userID: response.data.localId,
@@ -82,115 +67,68 @@ export function* processLogin(data) {
         expiryDateTime: expirationDateTime
       }
     })
-    
-    yield setTimeout(() => {
-      put({ type: types.LOADED })
-    }, 1000)
-    
-    yield localStorage.setItem("isAuthenticated", true);	
-    yield localStorage.setItem("token", response.data.idToken);	
-    yield localStorage.setItem("expirySeconds", response.data.expiresIn);
-    yield localStorage.setItem("userID", response.data.localId);
-    yield localStorage.setItem("userEmail", response.data.email);
-    yield localStorage.setItem("expiryDateTime", expirationDateTime);
-
+    // fill up local storage
+    localStorage.setItem("isAuthenticated", true);	
+    localStorage.setItem("token", response.data.idToken);	
+    localStorage.setItem("expirySeconds", response.data.expiresIn);
+    localStorage.setItem("userID", response.data.localId);
+    localStorage.setItem("userEmail", response.data.email);
+    localStorage.setItem("expiryDateTime", expirationDateTime);
   }
   catch(error) {
-  
-    yield console.log("Login Failed", error); //////// console //////
+    // console.log("Login failed", error); //////// console //////
     yield put({
       type: types.ERROR,
-      payload:  'Sigin failed'
-    })
-  
-  }
-
-  // return function(dispatch) {
-  //   // get credentials from state
-    
-  //   axios.post('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA7BXfCDlD4XUpkzbbBcSYYhlkiJI_SiYg', authData)
-  //     .then(response => {
-
-  //       // console.log(response);
-  //       // console.log(response.data);
-
-  //       // add expiry seconds in current date time and store that too
-  //       let expirationDateTime = new Date(new Date().getTime() + response.data.expiresIn * 1000);
-
-  //       dispatch({
-  //         type: types.SIGNIN,
-  //         payload: {
-  //           msgError: '',
-  //           msgSuccess: 'Signin Successful',
-  //           isAuthenticated: true,
-  //           token: response.data.idToken,
-  //           userID: response.data.localId,
-  //           userEmail: response.data.email,
-  //           expirySeconds: response.data.expiresIn,
-  //           expiryDateTime: expirationDateTime
-  //         }
-  //       })
-  //       setTimeout(() => {
-  //         dispatch({ type: types.LOADED })
-  //       }, 1000)
-        
-  //       // fill up local storage
-        
-  //       localStorage.setItem("isAuthenticated", true);	
-  //       localStorage.setItem("token", response.data.idToken);	
-  //       localStorage.setItem("expirySeconds", response.data.expiresIn);
-  //       localStorage.setItem("userID", response.data.localId);
-  //       localStorage.setItem("userEmail", response.data.email);
-  //       localStorage.setItem("expiryDateTime", expirationDateTime);
-
-  //     })
-  //     .catch(error => {
-  //       console.log("Login Failed", error); //////// console //////
-
-  //       dispatch({
-  //         type: types.ERROR,
-  //         payload:  'Sigin failed'
-  //       })
-
-  //     })
-  // }    
-}
-
-export const processLogOut = () => {
-  
-  // remove local storage
-  localStorage.removeItem("isAuthenticated");	
-  localStorage.removeItem("token");	
-  localStorage.removeItem("expirySeconds");
-  localStorage.removeItem("userID");
-  localStorage.removeItem("userEmail");
-  localStorage.removeItem("expiryDateTime");
-
-  return function(dispatch) {
-    dispatch({
-      type: types.LOGOUT,
       payload: {
-        authenticated: false,
-        token: '',
-        userID: '',
-        userEmail: '',
-        expirySeconds: '',
-        expiryDateTime: '',
-        msgSuccess: 'You have been logged out successfully',
-        msgError: '',
+        msgSuccess: '',
+        msgError: 'Login failed. Please try again!'
       }
     })
-    setTimeout(() => {
-      dispatch({ type: types.LOADED })
-    }, 1000)
   }
-
+  yield put({ type: types.LOADED })
 }
 
-export const relogin = () => {
-  return function(dispatch) {
-    dispatch({
-      type: types.RELOGIN,
+////////////////////////////////////////////////////////////////////////////////
+export function* clearMessages() {
+  try {
+    yield put({
+      type: types.FIRE_CLEAR_MESSAGES,
+      payload: {
+        msgSuccess: '',
+        msgError: ''
+      }
+    })
+  } catch(error) {
+    // console.log(error)
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+export function* processLogOut() {
+  yield put({ type: types.LOADING });
+  try {
+    yield put({
+      type: types.LOGOUT_PROCESS
+    })
+    // remove local storage
+    localStorage.removeItem("isAuthenticated");	
+    localStorage.removeItem("token");	
+    localStorage.removeItem("expirySeconds");
+    localStorage.removeItem("userID");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("expiryDateTime");
+  } catch(error) {
+    // console.log(error)
+  }
+  yield put({ type: types.LOADED })
+}
+
+///////////////////////////////////////////////////////////////////////////////
+export function* relogin() {
+  yield put({ type: types.LOADING });
+  try {
+    yield put({
+      type: types.RELOGIN_PROCESS,
       payload: {
         isAuthenticated: true,
         token: localStorage.token,
@@ -200,8 +138,8 @@ export const relogin = () => {
         expiryDateTime: localStorage.expiryDateTime
       }
     })
-    setTimeout(() => {
-      dispatch({ type: types.LOADED })
-    }, 1000)
+  } catch(error) {
+    // console.log(error)
   }
+  yield put({ type: types.LOADED })
 }

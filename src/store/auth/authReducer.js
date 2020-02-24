@@ -18,14 +18,12 @@ const authReducer = (state = initialState, action) => {
     case types.SIGNUP_PROCESS:
       return {
         ...state,
-        loading: true,
         msgSuccess: action.payload.msgSuccess,
         msgError: action.payload.msgError
       }
     case types.SIGNIN_PROCESS:
       return {
         ...state,
-        loading: true,
         isAuthenticated: action.payload.isAuthenticated,
         token: action.payload.token,
         userID: action.payload.userID,
@@ -35,10 +33,9 @@ const authReducer = (state = initialState, action) => {
         msgSuccess: action.payload.msgSuccess,
         msgError: action.payload.msgError,
       }
-    case types.RELOGIN:
+    case types.RELOGIN_PROCESS:
       return {
         ...state,
-        loading: true,
         isAuthenticated: action.payload.isAuthenticated,
         token: action.payload.token,
         userID: action.payload.userID,
@@ -48,36 +45,46 @@ const authReducer = (state = initialState, action) => {
         msgSuccess: '',
         msgError: ''
       }
-    case types.LOGOUT:
+    case types.LOGOUT_PROCESS:
       return {
         ...state,
-        loading: true,
-        isAuthenticated: action.payload.authenticated,
-        token: action.payload.token,
-        userID: action.payload.userID,
-        userEmail: action.payload.userEmail,
-        expirySeconds: action.payload.expirySeconds,
-        expiryDateTime: action.payload.expiryDateTime,
-        msgSuccess: action.payload.msgSuccess,
-        msgError: action.payload.msgError
+        isAuthenticated: false,
+        token: '',
+        userID: '',
+        userEmail: '',
+        expirySeconds: '',
+        expiryDateTime: '',
+        msgSuccess: '',
+        msgError: ''
+      }
+    case types.LOADING:
+      return {
+        ...state,
+        loading: true
       }
     case types.LOADED:
       return {
         ...state,
         loading: false
       }
-      case types.ERROR:
-        return {
-          ...state,
-          msgError: action.payload,
-          msgSuccess: ''
-        }
-      case types.SUCCESS:
-        return {
-          ...state,
-          msgSuccess: action.payload,
-          msgError: ''
-        }
+    case types.ERROR:
+      return {
+        ...state,
+        msgError: action.payload.msgError,
+        msgSuccess: ''
+      }
+    case types.SUCCESS:
+      return {
+        ...state,
+        msgSuccess: action.payload.msgSuccess,
+        msgError: ''
+      }
+    case types.FIRE_CLEAR_MESSAGES:
+      return {
+        ...state,
+        msgSuccess: '',
+        msgError: ''
+      }
     default:
       return state;
   }

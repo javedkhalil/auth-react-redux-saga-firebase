@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { connect } from "react-redux"
-import { processLogOut, relogin } from "./store/auth/authActions"
 import * as types from "./store/auth/authActionTypes";
 import { BrowserRouter as Router, Switch, Route, Link, Redirect } from 'react-router-dom';
 import './App.css';
@@ -30,6 +29,11 @@ function App({ isAuth, __logOut, __persistState, loader }) {
     }
   }
 
+  const LogOut = (e) => {
+    e.preventDefault();
+    __logOut();
+  }
+
   return (
     <Router>
       {/* if logged in - go to dashboard - else - homepage */}
@@ -43,7 +47,7 @@ function App({ isAuth, __logOut, __persistState, loader }) {
             <div className="nav-wrap">
               <Link to="/">Home</Link>
               { isAuth ? <Link to="/dashboard">Dashboard</Link> : <Link to="/account">Dashboard</Link> }
-              { isAuth ? <a href="#" onClick={ __logOut }>Logout</a> : <Link to="/account">Login</Link> }
+              { isAuth ? <a href="#" onClick={ LogOut }>Logout</a> : <Link to="/account">Login</Link> }
             </div>
           </div>
         </div>
